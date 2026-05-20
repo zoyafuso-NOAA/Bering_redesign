@@ -127,7 +127,7 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
   
   # detect if any years have no occurrences and fix parameters as needed
   maxs <- cpue_data %>% group_by(year) %>% summarize(max = max(cpue_kgkm2))
-  if(sum(maxs$max) == 0){
+  if(min(maxs$max) != 0) {
     control = sdmTMBcontrol()
   } else {
     zero_yr <- as.integer(maxs %>% filter(max == 0) %>% select(year))
