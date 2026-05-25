@@ -8,6 +8,8 @@
 # clear all objects
 rm(list = ls())
 
+options(error = quote(dump.frames("crash_dump", to.file = TRUE)))
+
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ##  Import libraries
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,7 +66,7 @@ grid_bs_year <- readRDS(file = "data/data_processed/grid_bs_year.RDS")
 ##  Fit Models
 ##~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over species -- start
+for (idx in sort(which(species_list$FOOTPRINT == "bs_shelf")[], decreasing = TRUE)) { ## Loop over species -- start
   # for (idx in 1:nrow(x = species_list) ) { ## Loop over species -- start  
   ## Extract species and survey footprint to fit model
   species_name <- species_list$SCIENTIFIC_NAME[idx]
@@ -102,7 +104,7 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
   mesh <- sdmTMB::make_mesh(data = cpue_data,
                             xy_cols = c("x_utm_km", "y_utm_km"), 
                             n_knots = c("bs_slope" = 200, 
-                                        "bs_shelf" = 300, 
+                                        "bs_shelf" = 250, 
                                         "bs_all" = 300)[[footprint]])
   
   ## Cold pool as a spatially varying coefficient
@@ -128,7 +130,7 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
   # detect if any years have no occurrences and fix parameters as needed
   maxs <- cpue_data %>% group_by(year) %>% summarize(max = max(cpue_kgkm2))
   if(min(maxs$max) != 0) {
-    control = sdmTMBcontrol()
+    control = sdmTMBcontrol(profile = TRUE)
   } else {
     zero_yr <- as.integer(maxs %>% filter(max == 0) %>% select(year))
     # set up map and fix value of p(occurrence) to slightly greater than 0:
@@ -141,7 +143,8 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
     
     control =  sdmTMBcontrol(
       map = list(b_j = .map, b_j2 = .map),
-      start = list(b_j = .start, b_j2 = .start)
+      start = list(b_j = .start, b_j2 = .start),
+      profile = TRUE
     )
   }
   
@@ -188,7 +191,7 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
       extra_time = extra_time,
       anisotropy = TRUE,
       control = control,
-      silent = FALSE      
+      silent = FALSE
     )
     
     ##  Fit model, save
@@ -216,18 +219,9 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
     print(summary(fit))
     sink()
     
-    ## Save cAIC
-    gc()
-    saveRDS(object = sdmTMB::cAIC(object = fit),
-            file = paste0(output_dir, "cAIC_", 
-                          ifelse(test = !is.null(x = cold_pool), 
-                                 yes = "cp_", no = ""),
-                          model_type, ".RDS"))
-    
-    
     ## Simulate densities for dharma residuals and future survey simulations
     gc()
-    sim_res <- simulate(fit, nsim = 500, type = "mle-mvn", seed = 32, model = NA)
+    sim_res <- simulate(fit, nsim = 100, type = "mle-mvn", seed = 32, model = NA)
     saveRDS(object = sim_res, 
             file = paste0(output_dir, "sim_res_", 
                           ifelse(test = !is.null(x = cold_pool), 
@@ -252,6 +246,17 @@ for (idx in which(species_list$FOOTPRINT == "bs_shelf")[]) { ## Loop over specie
          width = 6, height = 5, units = "in", res = 500) 
     plot(dharma_resids)
     dev.off()
+    
+    rm(dharma_resids, sim_res)
+    
+    ## Save cAIC
+    gc()
+    saveRDS(object = sdmTMB::cAIC(object = fit),
+            file = paste0(output_dir, "cAIC_", 
+                          ifelse(test = !is.null(x = cold_pool), 
+                                 yes = "cp_", no = ""),
+                          model_type, ".RDS"))
+    rm(fit)
     
     ## Loop over files and upload to Google Drive
     for (ifile in c(paste0(c("fit_", "sim_res_", "dharma_res_", "cAIC_"), 

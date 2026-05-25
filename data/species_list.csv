@@ -4,10 +4,10 @@ Atheresthes evermanni,10112,10112,1992,bs_all,AR1,AR1
 Atheresthes stomias,10110,10110,1992,bs_all,AR1,AR1
 Arctoraja parmifera,471,471,1999,bs_all,AR1,AR1
 Bathyraja aleutica,472,472,1999,bs_slope,off,off
-Boreogadus saida,21725,21725,1982,bs_shelf,,
+Boreogadus saida,21725,21725,1982,bs_shelf,AR1,AR1
 Chionoecetes bairdi,68560,68560,1982,bs_all,AR1,AR1
 Chionoecetes opilio,68580,68580,1982,bs_all,AR1,AR1
-Eleginus gracilis,21735,21735,1982,bs_shelf,,
+Eleginus gracilis,21735,21735,1982,bs_shelf,AR1,AR1
 Gadus chalcogrammus,21740,21740,1982,bs_all,AR1,AR1
 Gadus macrocephalus,21720,21720,1982,bs_all,AR1,AR1
 Glyptocephalus zachirus,10200,10200,1982,bs_all,AR1,AR1
@@ -18,7 +18,7 @@ Hippoglossus stenolepis,10120,10120,1982,bs_all,AR1,AR1
 Lepidopsetta bilineata,10262,10260,1982,bs_all,AR1,AR1
 Lepidopsetta polyxystra,10261,10260,1982,bs_all,AR1,AR1
 Lepidopsetta sp,10260,10260,1982,bs_all,AR1,AR1
-Limanda aspera,10210,10210,1982,bs_shelf,,
+Limanda aspera,10210,10210,1982,bs_shelf,AR1,AR1
 Paralithodes camtschaticus,69322,69322,1982,bs_shelf,AR1,AR1
 Paralithodes platypus,69323,69323,1982,bs_shelf,AR1,AR1
 Pleuronectes quadrituberculatus,10285,10285,1982,bs_shelf,AR1,AR1
